@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tomato_planet.backend.mapper.CollectionMapper">
+
+    <resultMap id="BaseResultMap" type="com.tomato_planet.backend.model.entity.Collection">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="userId" column="user_id" jdbcType="BIGINT"/>
+            <result property="topicId" column="topic_id" jdbcType="BIGINT"/>
+            <result property="collectTime" column="collect_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,user_id,topic_id,
+        collect_time
+    </sql>
+</mapper>
