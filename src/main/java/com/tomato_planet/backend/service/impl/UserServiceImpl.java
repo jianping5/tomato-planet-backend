@@ -183,6 +183,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             QueryWrapper<User> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("user_account", userAccount);
             user = this.getOne(queryWrapper);
+            if (user == null) {
+                throw new BusinessException(StatusCode.PARAMS_ERROR, "查无此人");
+            }
             if (user.getUserPassword() == null) {
                 throw new BusinessException(StatusCode.PARAMS_ERROR, "未设置密码");
             }

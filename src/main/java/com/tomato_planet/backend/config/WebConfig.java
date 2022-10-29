@@ -23,7 +23,8 @@ public class WebConfig  implements WebMvcConfigurer  {
                         "/user/sendVerifyCode",
                         "/doc.html",
                         "/v2/api-docs",
-                        "/swagger-resources"
+                        "/swagger-resources",
+                        "/topic/image/upload"
                 );
     }
 

@@ -12,6 +12,7 @@ import com.tomato_planet.backend.model.vo.TodoItemVO;
 import com.tomato_planet.backend.service.FocusRecordService;
 import com.tomato_planet.backend.service.TodoItemService;
 import com.tomato_planet.backend.mapper.TodoItemMapper;
+import io.swagger.models.auth.In;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -52,7 +53,10 @@ public class TodoItemServiceImpl extends ServiceImpl<TodoItemMapper, TodoItem>
             throw new BusinessException(StatusCode.PARAMS_ERROR, "待办名称过长");
         }
         // 校验待办总时长（分钟） [1,180] 整数
-        int todoTotalTime = todoItem.getTodoTotalTime();
+        Integer todoTotalTime = todoItem.getTodoTotalTime();
+        if (todoTotalTime == null) {
+            throw new BusinessException(StatusCode.PARAMS_ERROR, "待办时长不能为空");
+        }
         if (todoTotalTime <= TODO_TOTAL_SHORTEST_TIME_LENGTH && todoTotalTime > TODO_TOTAL_LOGNEST_TIME_LENGTH) {
             throw new BusinessException(StatusCode.PARAMS_ERROR, "待办时长不满足要求");
         }
@@ -94,7 +98,10 @@ public class TodoItemServiceImpl extends ServiceImpl<TodoItemMapper, TodoItem>
             throw new BusinessException(StatusCode.PARAMS_ERROR, "待办名称过长");
         }
         // 校验待办总时长（分钟） [1,180] 整数
-        int todoTotalTime = todoItemUpdateRequest.getTodoTotalTime();
+        Integer todoTotalTime = todoItemUpdateRequest.getTodoTotalTime();
+        if (todoTotalTime == null) {
+            throw new BusinessException(StatusCode.PARAMS_ERROR, "待办时长不能为空");
+        }
         if (todoTotalTime <= TODO_TOTAL_SHORTEST_TIME_LENGTH && todoTotalTime >= TODO_TOTAL_LOGNEST_TIME_LENGTH) {
             throw new BusinessException(StatusCode.PARAMS_ERROR, "待办时长不满足要求");
         }
@@ -140,16 +147,16 @@ public class TodoItemServiceImpl extends ServiceImpl<TodoItemMapper, TodoItem>
             // 查询该待办项对应的专注记录
             QueryWrapper<FocusRecord> focusRecordQueryWrapper = new QueryWrapper<>();
             focusRecordQueryWrapper.eq("user_id", userId).eq("todo_item_id", todoItem.getId());
-            List<FocusRecord> focusRecordlist = focusRecordService.list(focusRecordQueryWrapper);
+            List<FocusRecord> focusRecordList = focusRecordService.list(focusRecordQueryWrapper);
             // 专注记录为空，则该待办项专注时长为0
-            if (CollectionUtils.isEmpty(focusRecordlist)) {
+            if (CollectionUtils.isEmpty(focusRecordList)) {
                 todoItemVO.setFocusTotalTime(0);
                 todoItemVOList.add(todoItemVO);
                 continue;
             }
             // 遍历其所有专注记录，设置专注总时长
             int focusTotalTime = 0;
-            for (FocusRecord focusRecord : focusRecordlist) {
+            for (FocusRecord focusRecord : focusRecordList) {
                 int focusTime = focusRecord.getFocusTime();
                 focusTotalTime += focusTime;
             }

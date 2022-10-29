@@ -49,7 +49,10 @@ public class UserController {
         int loginType = loginRequest.getLoginType();
         String userIdentification = loginRequest.getUserIdentification();
         String pwdOrVerifyCode = loginRequest.getPwdOrVerifyCode();
-        if (StringUtils.isAnyBlank(userIdentification, pwdOrVerifyCode) || (loginType != 0 && loginType != 1)) {
+        if (StringUtils.isAnyBlank(userIdentification, pwdOrVerifyCode)) {
+            throw new BusinessException(StatusCode.PARAMS_ERROR);
+        }
+        if (loginType != 0 && loginType != 1) {
             throw new BusinessException(StatusCode.PARAMS_ERROR);
         }
         User user = userService.userLogin(loginType, userIdentification, pwdOrVerifyCode, request);

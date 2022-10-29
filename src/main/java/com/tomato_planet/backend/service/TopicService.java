@@ -2,6 +2,12 @@ package com.tomato_planet.backend.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.tomato_planet.backend.model.entity.Topic;
+import com.tomato_planet.backend.model.entity.User;
+import com.tomato_planet.backend.model.request.TopicUpdateRequest;
+import com.tomato_planet.backend.model.vo.TopicVO;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 /**
 * @author jianping5
@@ -10,4 +16,43 @@ import com.tomato_planet.backend.model.entity.Topic;
 */
 public interface TopicService extends IService<Topic> {
 
+
+    /**
+     * 发布主题
+     * @param topic
+     * @param loginUser
+     * @param files
+     * @return
+     */
+    long addTopic(Topic topic, User loginUser, MultipartFile[] files);
+
+    /**
+     * 更新主题
+     * @param topicUpdateRequest
+     * @param loginUser
+     * @param files
+     * @return
+     */
+    boolean updateTopic(TopicUpdateRequest topicUpdateRequest, User loginUser, MultipartFile[] files);
+
+    /**
+     * 删除主题
+     * @param id
+     * @param loginUser
+     * @return
+     */
+    boolean deleteTopic(Long id, User loginUser);
+
+    /**
+     * 根据标签分类展示主题
+     * @param tag
+     * @return
+     */
+    List<TopicVO> listTopicByTag(String tag);
+
+    /**
+     * 根据关键字查询主题
+     * @param keyWords
+     */
+    List<TopicVO> searchTopicByTags(String keyWords);
 }

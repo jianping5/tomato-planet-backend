@@ -9,6 +9,8 @@ import com.tomato_planet.backend.model.entity.User;
 import com.tomato_planet.backend.model.request.FocusEndRequest;
 import com.tomato_planet.backend.service.FocusRecordService;
 import com.tomato_planet.backend.util.UserHolder;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
