@@ -8,11 +8,13 @@
             <id property="id" column="id" jdbcType="BIGINT"/>
             <result property="userId" column="user_id" jdbcType="BIGINT"/>
             <result property="topicId" column="topic_id" jdbcType="BIGINT"/>
+            <result property="isCollect" column="is_collect" jdbcType="TINYINT"/>
+            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
             <result property="collectTime" column="collect_time" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id,user_id,topic_id,
-        collect_time
+        is_collect,update_time,collect_time
     </sql>
 </mapper>

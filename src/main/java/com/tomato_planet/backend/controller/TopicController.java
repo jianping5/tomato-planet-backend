@@ -4,29 +4,24 @@ import com.tomato_planet.backend.common.BaseResponse;
 import com.tomato_planet.backend.common.ResultUtils;
 import com.tomato_planet.backend.common.StatusCode;
 import com.tomato_planet.backend.exception.BusinessException;
+import com.tomato_planet.backend.model.dto.TopicDTO;
 import com.tomato_planet.backend.model.entity.Topic;
 import com.tomato_planet.backend.model.entity.User;
 import com.tomato_planet.backend.model.request.DeleteRequest;
 import com.tomato_planet.backend.model.request.TopicAddRequest;
 import com.tomato_planet.backend.model.request.TopicUpdateRequest;
-import com.tomato_planet.backend.model.vo.TodoItemVO;
 import com.tomato_planet.backend.model.vo.TopicVO;
 import com.tomato_planet.backend.service.TopicService;
 import com.tomato_planet.backend.util.ImageUtils;
 import com.tomato_planet.backend.util.UserHolder;
 import io.swagger.annotations.ApiOperation;
-import net.sf.jsqlparser.statement.select.Top;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import javax.print.DocFlavor;
-import javax.xml.transform.Result;
 import java.util.List;
 import java.util.Map;
 
@@ -110,7 +105,47 @@ public class TopicController {
         return ResultUtils.success(topicVOList);
     }
 
-    @GetMapping("/like")
+    @PostMapping("/view")
+    public BaseResponse<TopicVO> viewTopicDetail(@RequestBody TopicDTO topicViewDTO) {
+        if (topicViewDTO == null) {
+            throw new BusinessException(StatusCode.PARAMS_ERROR);
+        }
+        Long id = topicViewDTO.getId();
+        if (id == null || id <= 0) {
+            throw new BusinessException(StatusCode.PARAMS_ERROR);
+        }
+        TopicVO topicVO = topicService.viewTopicDetail(id);
+        return ResultUtils.success(topicVO);
+    }
+
+
+    @PostMapping("/like")
+    public BaseResponse<Boolean> likeTopic(@RequestBody TopicDTO topicDTO) {
+        if (topicDTO == null) {
+            throw new BusinessException(StatusCode.PARAMS_ERROR);
+        }
+        Long id = topicDTO.getId();
+        if (id == null || id <= 0) {
+            throw new BusinessException(StatusCode.PARAMS_ERROR);
+        }
+        User loginUser = UserHolder.getUser();
+        boolean result = topicService.likeTopic(id, loginUser);
+        return ResultUtils.success(result);
+    }
+
+    @PostMapping("/collect")
+    public BaseResponse<Boolean> collectTopic(@RequestBody TopicDTO topicDTO) {
+        if (topicDTO == null) {
+            throw new BusinessException(StatusCode.PARAMS_ERROR);
+        }
+        Long id = topicDTO.getId();
+        if (id == null || id <= 0) {
+            throw new BusinessException(StatusCode.PARAMS_ERROR);
+        }
+        User loginUser = UserHolder.getUser();
+        boolean result = topicService.collectTopic(id, loginUser);
+        return ResultUtils.success(result);
+    }
 
 
     @PostMapping("/image/upload")

@@ -1,6 +1,6 @@
 package com.tomato_planet.backend.mapper;
 
-import com.tomato_planet.backend.model.entity.Like;
+import com.tomato_planet.backend.model.entity.TopicLike;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
@@ -9,7 +9,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 * @createDate 2022-10-30 00:32:45
 * @Entity com.tomato_planet.backend.model.entity.Like
 */
-public interface LikeMapper extends BaseMapper<Like> {
+public interface TopicLikeMapper extends BaseMapper<TopicLike> {
 
 }
 

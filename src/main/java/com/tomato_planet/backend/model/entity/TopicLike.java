@@ -6,18 +6,17 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 /**
- * 收藏表
- * @TableName collection
+ * 点赞表
+ * @TableName like
  */
-@TableName(value ="collection")
+@TableName(value ="topic_like")
 @Data
-public class Collection implements Serializable {
+public class TopicLike implements Serializable {
     /**
      * 主键
      */
@@ -35,10 +34,20 @@ public class Collection implements Serializable {
     private Long topicId;
 
     /**
-     * 收藏时间
+     * 是否点赞（0：未点赞 1：已点赞）
+     */
+    private Integer isLike;
+
+    /**
+     * 点赞时间
+     */
+    private LocalDateTime createTime;
+
+    /**
+     * 修改时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime collectTime;
+    private LocalDateTime updateTime;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
@@ -54,11 +63,13 @@ public class Collection implements Serializable {
         if (getClass() != that.getClass()) {
             return false;
         }
-        Collection other = (Collection) that;
+        TopicLike other = (TopicLike) that;
         return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
             && (this.getUserId() == null ? other.getUserId() == null : this.getUserId().equals(other.getUserId()))
             && (this.getTopicId() == null ? other.getTopicId() == null : this.getTopicId().equals(other.getTopicId()))
-            && (this.getCollectTime() == null ? other.getCollectTime() == null : this.getCollectTime().equals(other.getCollectTime()));
+            && (this.getIsLike() == null ? other.getIsLike() == null : this.getIsLike().equals(other.getIsLike()))
+            && (this.getCreateTime() == null ? other.getCreateTime() == null : this.getCreateTime().equals(other.getCreateTime()))
+            && (this.getUpdateTime() == null ? other.getUpdateTime() == null : this.getUpdateTime().equals(other.getUpdateTime()));
     }
 
     @Override
@@ -68,7 +79,9 @@ public class Collection implements Serializable {
         result = prime * result + ((getId() == null) ? 0 : getId().hashCode());
         result = prime * result + ((getUserId() == null) ? 0 : getUserId().hashCode());
         result = prime * result + ((getTopicId() == null) ? 0 : getTopicId().hashCode());
-        result = prime * result + ((getCollectTime() == null) ? 0 : getCollectTime().hashCode());
+        result = prime * result + ((getIsLike() == null) ? 0 : getIsLike().hashCode());
+        result = prime * result + ((getCreateTime() == null) ? 0 : getCreateTime().hashCode());
+        result = prime * result + ((getUpdateTime() == null) ? 0 : getUpdateTime().hashCode());
         return result;
     }
 
@@ -81,7 +94,9 @@ public class Collection implements Serializable {
         sb.append(", id=").append(id);
         sb.append(", userId=").append(userId);
         sb.append(", topicId=").append(topicId);
-        sb.append(", collectTime=").append(collectTime);
+        sb.append(", isLike=").append(isLike);
+        sb.append(", createTime=").append(createTime);
+        sb.append(", updateTime=").append(updateTime);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

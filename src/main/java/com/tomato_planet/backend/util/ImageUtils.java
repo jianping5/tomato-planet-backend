@@ -64,12 +64,12 @@ public class ImageUtils {
             String suffix = originalFilename.substring(originalFilename.lastIndexOf("."));
             String filename = datePath+"/"+ UUID.randomUUID().toString().replace("-", "")+ suffix;
 
-            //4.构造一个带指定 Region 对象的配置类
-            //Region.huanan(根据自己的对象空间的地址选择）
+            // 构造一个带指定 Region 对象的配置类
+            // Region.huanan(根据自己的对象空间的地址选择）
             Configuration cfg = new Configuration(Region.huanan());
             UploadManager uploadManager = new UploadManager(cfg);
 
-            //5.获取七牛云提供的 token
+            // 获取七牛云提供的 token
             Auth auth = Auth.create(accessKey, accessSecretKey);
             String upToken = auth.uploadToken(bucket);
             uploadManager.put(fileBytes,filename,upToken);

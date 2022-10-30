@@ -1,13 +1,20 @@
 package com.tomato_planet.backend.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.gson.Gson;
 import com.tomato_planet.backend.common.StatusCode;
+import com.tomato_planet.backend.constant.TopicConstant;
 import com.tomato_planet.backend.exception.BusinessException;
+import com.tomato_planet.backend.model.entity.Collection;
+import com.tomato_planet.backend.model.entity.TopicLike;
 import com.tomato_planet.backend.model.entity.Topic;
 import com.tomato_planet.backend.model.entity.User;
 import com.tomato_planet.backend.model.request.TopicUpdateRequest;
 import com.tomato_planet.backend.model.vo.TopicVO;
+import com.tomato_planet.backend.service.CollectionService;
+import com.tomato_planet.backend.service.TopicLikeService;
 import com.tomato_planet.backend.service.TopicService;
 import com.tomato_planet.backend.mapper.TopicMapper;
 import com.tomato_planet.backend.service.UserService;
@@ -25,7 +32,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.tomato_planet.backend.constant.TopicConstant.TOPIC_TITLE_LONGEST_LENGTH;
-import static com.tomato_planet.backend.constant.TopicConstant.TOPIC_TITLE_SHORTEST_LENGTH;
 
 /**
 * @author jianping5
@@ -41,6 +47,12 @@ public class TopicServiceImpl extends ServiceImpl<TopicMapper, Topic>
 
     @Resource
     private UserService userService;
+
+    @Resource
+    private TopicLikeService likeService;
+
+    @Resource
+    private CollectionService collectionService;
 
     @Override
     public long addTopic(Topic topic, User loginUser, MultipartFile[] files) {
@@ -241,6 +253,169 @@ public class TopicServiceImpl extends ServiceImpl<TopicMapper, Topic>
             throw new BusinessException(StatusCode.SYSTEM_ERROR, "数组合并失败");
         }
         return topicVOListFromTag;
+    }
+
+    @Override
+    public TopicVO viewTopicDetail(Long id) {
+        // 查看对应主题是否存在
+        Topic topic = getTopicById(id);
+        if (topic == null) {
+            throw new BusinessException(StatusCode.PARAMS_ERROR, "主题不存在");
+        }
+
+        // 将主题属性值注入到主题视图体中
+        TopicVO topicVO = new TopicVO();
+        BeanUtils.copyProperties(topic, topicVO);
+
+        // 查看主题发布者是否存在，若存在则将其部分信息注入到主题视图体中
+        Long userId = topic.getUserId();
+        User user = userService.getById(userId);
+        if (user == null) {
+            throw new BusinessException(StatusCode.PARAMS_ERROR, "该用户不存在");
+        }
+        topicVO.setUserName(user.getUserName());
+        topicVO.setAvatarUrl(user.getAvatarUrl());
+        return topicVO;
+    }
+
+    @Override
+    public boolean likeTopic(Long id, User loginUser) {
+        Topic topic = getTopicById(id);
+        // 获取当前用户对该主题的点赞记录
+        if (loginUser == null) {
+            throw new BusinessException(StatusCode.NOT_LOGIN, "未登录");
+        }
+        Long loginUserId = loginUser.getId();
+        QueryWrapper<TopicLike> likeQueryWrapper = new QueryWrapper<>();
+        likeQueryWrapper.eq("user_id", loginUserId);
+        likeQueryWrapper.eq("topic_id", topic.getId());
+        TopicLike like = likeService.getOne(likeQueryWrapper);
+        // 之前未点赞且无记录
+        if (like == null) {
+            TopicLike newlike = new TopicLike();
+            newlike.setUserId(loginUserId);
+            newlike.setTopicId(id);
+            newlike.setIsLike(1);
+            boolean saveResult = likeService.save(newlike);
+            if (!saveResult) {
+                throw new BusinessException(StatusCode.SYSTEM_ERROR, "点赞失败");
+            }
+            // 增加对应主题的点赞量到
+            topic.setLikeCount(topic.getLikeCount() + 1);
+            boolean updateResult = this.updateById(topic);
+            if (!updateResult) {
+                throw new BusinessException(StatusCode.SYSTEM_ERROR, "点赞失败");
+            }
+            return true;
+        }
+
+        // 更新条件（对应主题对应用户id）
+        UpdateWrapper<TopicLike> likeUpdateWrapper = new UpdateWrapper<>();
+        likeUpdateWrapper.eq("user_id", loginUserId);
+        likeUpdateWrapper.eq("topic_id", topic.getId());
+
+        // 之前未点赞（但有记录）
+        if (like.getIsLike() == 0) {
+            likeUpdateWrapper.set("is_like", 1);
+            boolean updateResult1 = likeService.update(likeUpdateWrapper);
+            if (!updateResult1) {
+                throw new BusinessException(StatusCode.PARAMS_ERROR, "点赞失败");
+            }
+            // 增加对应主题的点赞量到
+            topic.setLikeCount(topic.getLikeCount() + 1);
+            boolean updateResult = this.updateById(topic);
+            if (!updateResult) {
+                throw new BusinessException(StatusCode.SYSTEM_ERROR, "点赞失败");
+            }
+            return true;
+        }
+
+        // 之前已点赞
+        if (like.getIsLike() == 1) {
+            likeUpdateWrapper.set("is_like", 0);
+            boolean updateResult2 = likeService.update(likeUpdateWrapper);
+            if (!updateResult2) {
+                throw new BusinessException(StatusCode.PARAMS_ERROR, "取消点赞失败");
+            }
+            // 减少对应主题的点赞量到
+            topic.setLikeCount(topic.getLikeCount() - 1);
+            boolean updateResult = this.updateById(topic);
+            if (!updateResult) {
+                throw new BusinessException(StatusCode.SYSTEM_ERROR, "点赞失败");
+            }
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean collectTopic(Long id, User loginUser) {
+        Topic topic = getTopicById(id);
+        // 获取当前用户对该主题的收藏记录
+        if (loginUser == null) {
+            throw new BusinessException(StatusCode.NOT_LOGIN, "未登录");
+        }
+        Long loginUserId = loginUser.getId();
+        QueryWrapper<Collection> collectionQueryWrapper = new QueryWrapper<>();
+        collectionQueryWrapper.eq("user_id", loginUserId);
+        collectionQueryWrapper.eq("topic_id", topic.getId());
+        Collection collection = collectionService.getOne(collectionQueryWrapper);
+        // 之前未收藏且无记录
+        if (collection == null) {
+            Collection newCollection = new Collection();
+            newCollection.setUserId(loginUserId);
+            newCollection.setTopicId(id);
+            newCollection.setIsCollect(1);
+            boolean saveResult = collectionService.save(newCollection);
+            if (!saveResult) {
+                throw new BusinessException(StatusCode.SYSTEM_ERROR, "收藏失败");
+            }
+            // 增加对应主题的收藏量到
+            topic.setCollectCount(topic.getCollectCount() + 1);
+            boolean updateResult = this.updateById(topic);
+            if (!updateResult) {
+                throw new BusinessException(StatusCode.SYSTEM_ERROR, "收藏失败");
+            }
+            return true;
+        }
+
+        // 更新条件（对应主题对应用户id）
+        UpdateWrapper<Collection> collectionUpdateWrapper = new UpdateWrapper<>();
+        collectionUpdateWrapper.eq("user_id", loginUserId);
+        collectionUpdateWrapper.eq("topic_id", topic.getId());
+
+        // 之前未点赞（但有记录）
+        if (collection.getIsCollect() == 0) {
+            collectionUpdateWrapper.set("is_collect", 1);
+            boolean updateResult1 = collectionService.update(collectionUpdateWrapper);
+            if (!updateResult1) {
+                throw new BusinessException(StatusCode.PARAMS_ERROR, "收藏失败");
+            }
+            // 增加对应主题的点赞量到
+            topic.setCollectCount(topic.getCollectCount() + 1);
+            boolean updateResult = this.updateById(topic);
+            if (!updateResult) {
+                throw new BusinessException(StatusCode.SYSTEM_ERROR, "收藏失败");
+            }
+            return true;
+        }
+
+        // 之前已点赞
+        if (collection.getIsCollect() == 1) {
+            collectionUpdateWrapper.set("is_like", 0);
+            boolean updateResult2 = collectionService.update(collectionUpdateWrapper);
+            if (!updateResult2) {
+                throw new BusinessException(StatusCode.PARAMS_ERROR, "取消收藏失败");
+            }
+            // 减少对应主题的点赞量到
+            topic.setCollectCount(topic.getCollectCount() - 1);
+            boolean updateResult = this.updateById(topic);
+            if (!updateResult) {
+                throw new BusinessException(StatusCode.SYSTEM_ERROR, "收藏失败");
+            }
+            return true;
+        }
+        return false;
     }
 
     /**

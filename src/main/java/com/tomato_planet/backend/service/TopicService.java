@@ -55,4 +55,26 @@ public interface TopicService extends IService<Topic> {
      * @param keyWords
      */
     List<TopicVO> searchTopicByTags(String keyWords);
+
+    /**
+     * 查看主题详情
+     * @param id
+     * @return
+     */
+    TopicVO viewTopicDetail(Long id);
+
+    /**
+     * 点赞主题
+     * @param id
+     * @param loginUser
+     */
+    boolean likeTopic(Long id, User loginUser);
+
+    /**
+     * 收藏主题
+     * @param id
+     * @param loginUser
+     * @return
+     */
+    boolean collectTopic(Long id, User loginUser);
 }
