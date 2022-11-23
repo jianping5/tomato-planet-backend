@@ -80,6 +80,18 @@ public class TopicVO implements Serializable {
     private Long likeCount;
 
     /**
+     * 是否被当前用户点赞
+     */
+    @ApiModelProperty("是否被当前用户点赞")
+    private Boolean isLiked;
+
+    /**
+     * 是否被当前用户收藏
+     */
+    @ApiModelProperty("是否被当前用户收藏")
+    private Boolean isCollected;
+
+    /**
      * 收藏数
      */
     @ApiModelProperty("收藏数")
@@ -90,6 +102,12 @@ public class TopicVO implements Serializable {
      */
     @ApiModelProperty("评论数")
     private Long commentCount;
+
+    /**
+     * 地理位置
+     */
+    @ApiModelProperty("地理位置")
+    private String location;
 
     /**
      * 主题发表时间

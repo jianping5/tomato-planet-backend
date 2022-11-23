@@ -20,12 +20,12 @@ public class LoginRequest implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "登录类型（0：邮箱登录 1：密码登录）")
+    @ApiModelProperty(value = "登录类型（0：邮箱登录 1：密码登录）", example = "1")
     private int loginType;
 
-    @ApiModelProperty(value = "用户身份（账号或邮箱）")
+    @ApiModelProperty(value = "用户身份（账号或邮箱）", example = "01234567899")
     private String userIdentification;
 
-    @ApiModelProperty(value = "账号或邮箱")
+    @ApiModelProperty(value = "账号或邮箱", example = "wjp0123456789")
     private String pwdOrVerifyCode;
 }

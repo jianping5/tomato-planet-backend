@@ -46,4 +46,10 @@ public class TopicUpdateRequest implements Serializable {
     @ApiModelProperty("标签")
     private String tag;
 
+    /**
+     * 地理位置
+     */
+    @ApiModelProperty("地理位置")
+    private String location;
+
 }

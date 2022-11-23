@@ -1,15 +1,10 @@
 package com.tomato_planet.backend.model.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Data;
+import com.baomidou.mybatisplus.annotation.*;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
 import java.util.Date;
+import lombok.Data;
 
 /**
  * 待办项表
@@ -47,14 +42,18 @@ public class TodoItem implements Serializable {
     /**
      * 待办创建时间
      */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime todoCreateTime;
+    private Date todoCreateTime;
 
     /**
      * 待办修改时间
      */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime todoUpdateTime;
+    private Date todoUpdateTime;
+
+    /**
+     * 是否删除（逻辑删除）
+     */
+    @TableLogic
+    private Integer isDeleted;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
@@ -77,7 +76,8 @@ public class TodoItem implements Serializable {
             && (this.getTodoTotalTime() == null ? other.getTodoTotalTime() == null : this.getTodoTotalTime().equals(other.getTodoTotalTime()))
             && (this.getTodoBackgroundImageUrl() == null ? other.getTodoBackgroundImageUrl() == null : this.getTodoBackgroundImageUrl().equals(other.getTodoBackgroundImageUrl()))
             && (this.getTodoCreateTime() == null ? other.getTodoCreateTime() == null : this.getTodoCreateTime().equals(other.getTodoCreateTime()))
-            && (this.getTodoUpdateTime() == null ? other.getTodoUpdateTime() == null : this.getTodoUpdateTime().equals(other.getTodoUpdateTime()));
+            && (this.getTodoUpdateTime() == null ? other.getTodoUpdateTime() == null : this.getTodoUpdateTime().equals(other.getTodoUpdateTime()))
+            && (this.getIsDeleted() == null ? other.getIsDeleted() == null : this.getIsDeleted().equals(other.getIsDeleted()));
     }
 
     @Override
@@ -91,6 +91,7 @@ public class TodoItem implements Serializable {
         result = prime * result + ((getTodoBackgroundImageUrl() == null) ? 0 : getTodoBackgroundImageUrl().hashCode());
         result = prime * result + ((getTodoCreateTime() == null) ? 0 : getTodoCreateTime().hashCode());
         result = prime * result + ((getTodoUpdateTime() == null) ? 0 : getTodoUpdateTime().hashCode());
+        result = prime * result + ((getIsDeleted() == null) ? 0 : getIsDeleted().hashCode());
         return result;
     }
 
@@ -107,6 +108,7 @@ public class TodoItem implements Serializable {
         sb.append(", todoBackgroundImageUrl=").append(todoBackgroundImageUrl);
         sb.append(", todoCreateTime=").append(todoCreateTime);
         sb.append(", todoUpdateTime=").append(todoUpdateTime);
+        sb.append(", isDeleted=").append(isDeleted);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

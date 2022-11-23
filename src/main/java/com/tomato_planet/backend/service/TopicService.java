@@ -5,6 +5,7 @@ import com.tomato_planet.backend.model.entity.Topic;
 import com.tomato_planet.backend.model.entity.User;
 import com.tomato_planet.backend.model.request.TopicUpdateRequest;
 import com.tomato_planet.backend.model.vo.TopicVO;
+import jdk.nashorn.internal.ir.LiteralNode;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -51,10 +52,10 @@ public interface TopicService extends IService<Topic> {
     List<TopicVO> listTopicByTag(String tag);
 
     /**
-     * 根据关键字查询主题
+     * 根据关键字查询主题（从标签和标题中查询）
      * @param keyWords
      */
-    List<TopicVO> searchTopicByTags(String keyWords);
+    List<TopicVO> searchTopic(String keyWords);
 
     /**
      * 查看主题详情
@@ -67,6 +68,7 @@ public interface TopicService extends IService<Topic> {
      * 点赞主题
      * @param id
      * @param loginUser
+     * @return
      */
     boolean likeTopic(Long id, User loginUser);
 
@@ -77,4 +79,24 @@ public interface TopicService extends IService<Topic> {
      * @return
      */
     boolean collectTopic(Long id, User loginUser);
+
+    /**
+     * 点赞主题（redis）
+     * @param topicId
+     * @return
+     */
+    boolean likeTopic(Long topicId);
+
+
+    /**
+     * 查看主题收藏记录
+     * @return
+     */
+    List<TopicVO> listCollectedTopic();
+
+    /**
+     * 查找发布管理记录
+     * @return
+     */
+    List<TopicVO> listPublishTopic();
 }

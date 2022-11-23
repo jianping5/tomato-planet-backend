@@ -11,6 +11,10 @@ import com.tomato_planet.backend.model.entity.User;
 */
 public interface UserMapper extends BaseMapper<User> {
 
+    /**
+     * 获取被逻辑删除的用户
+     */
+    User getOneByLogicDeleted(Long id);
 }
 
 

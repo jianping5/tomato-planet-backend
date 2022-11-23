@@ -6,7 +6,7 @@ package com.tomato_planet.backend.common;
  * @author jianping5
  * @createDate 2022/10/24 15:28
  */
-    public enum StatusCode {
+public enum StatusCode {
 
     SUCCESS(0, "ok", ""),
     PARAMS_ERROR(40001, "请求参数错误", ""),

@@ -2,6 +2,9 @@ package com.tomato_planet.backend.service;
 
 import com.tomato_planet.backend.model.entity.Comment;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.tomato_planet.backend.model.vo.CommentVO;
+
+import java.util.List;
 
 /**
 * @author jianping5
@@ -10,4 +13,17 @@ import com.baomidou.mybatisplus.extension.service.IService;
 */
 public interface CommentService extends IService<Comment> {
 
+    /**
+     * 评论主题
+     * @param comment
+     * @return
+     */
+    boolean commentTopic(Comment comment);
+
+    /**
+     * 查询主题评论
+     * @param topicId
+     * @return
+     */
+    List<CommentVO> listTopicComment(Long topicId);
 }

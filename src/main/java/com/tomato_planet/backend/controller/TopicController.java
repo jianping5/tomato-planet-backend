@@ -5,12 +5,18 @@ import com.tomato_planet.backend.common.ResultUtils;
 import com.tomato_planet.backend.common.StatusCode;
 import com.tomato_planet.backend.exception.BusinessException;
 import com.tomato_planet.backend.model.dto.TopicDTO;
+import com.tomato_planet.backend.model.entity.Collection;
+import com.tomato_planet.backend.model.entity.Comment;
 import com.tomato_planet.backend.model.entity.Topic;
 import com.tomato_planet.backend.model.entity.User;
 import com.tomato_planet.backend.model.request.DeleteRequest;
 import com.tomato_planet.backend.model.request.TopicAddRequest;
+import com.tomato_planet.backend.model.request.TopicCommentRequest;
 import com.tomato_planet.backend.model.request.TopicUpdateRequest;
+import com.tomato_planet.backend.model.vo.CommentVO;
 import com.tomato_planet.backend.model.vo.TopicVO;
+import com.tomato_planet.backend.service.CollectionService;
+import com.tomato_planet.backend.service.CommentService;
 import com.tomato_planet.backend.service.TopicService;
 import com.tomato_planet.backend.util.ImageUtils;
 import com.tomato_planet.backend.util.UserHolder;
@@ -18,6 +24,7 @@ import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -41,6 +48,9 @@ public class TopicController {
 
     @Resource
     private ImageUtils imageUtils;
+
+    @Resource
+    private CommentService commentService;
 
     @PostMapping("/add")
     public BaseResponse<Long> addTopic(@RequestPart TopicAddRequest topicAddRequest,
@@ -88,11 +98,11 @@ public class TopicController {
 
 
     @GetMapping("/search")
-    public BaseResponse<List<TopicVO>> searchTopicByTags(@RequestParam String keyWords) {
+    public BaseResponse<List<TopicVO>> searchTopic(@RequestParam String keyWords) {
         if (StringUtils.isBlank(keyWords)) {
             throw new BusinessException(StatusCode.PARAMS_ERROR);
         }
-        List<TopicVO> topicVOList = topicService.searchTopicByTags(keyWords);
+        List<TopicVO> topicVOList = topicService.searchTopic(keyWords);
         return ResultUtils.success(topicVOList);
     }
 
@@ -133,6 +143,18 @@ public class TopicController {
         return ResultUtils.success(result);
     }
 
+    @PutMapping("/like/{topicId}")
+    public BaseResponse<Boolean> likeTopic(@PathVariable Long topicId) {
+        if (topicId == null || topicId <= 0) {
+            throw new BusinessException(StatusCode.PARAMS_ERROR);
+        }
+        boolean result = topicService.likeTopic(topicId);
+        if (!result) {
+            throw new BusinessException(StatusCode.PARAMS_ERROR, "点赞失败");
+        }
+        return ResultUtils.success(true);
+    }
+
     @PostMapping("/collect")
     public BaseResponse<Boolean> collectTopic(@RequestBody TopicDTO topicDTO) {
         if (topicDTO == null) {
@@ -147,6 +169,17 @@ public class TopicController {
         return ResultUtils.success(result);
     }
 
+    @GetMapping("/collect/list")
+    public BaseResponse<List<TopicVO>> listCollectedTopic() {
+        List<TopicVO> topicVOList = topicService.listCollectedTopic();
+        return ResultUtils.success(topicVOList);
+    }
+
+    @GetMapping("/publish/list")
+    public BaseResponse<List<TopicVO>> listPublishTopic() {
+        List<TopicVO> topicVOList = topicService.listPublishTopic();
+        return ResultUtils.success(topicVOList);
+    }
 
     @PostMapping("/image/upload")
     public BaseResponse<Map<String, List<String>>> uploadImage(@RequestParam(value = "files",required = false) MultipartFile[] files){
@@ -157,6 +190,27 @@ public class TopicController {
         return ResultUtils.success(uploadImagesUrl);
     }
 
+    @PostMapping("/comment")
+    public BaseResponse<Boolean> commentTopic(@RequestBody TopicCommentRequest topicCommentRequest) {
+        if (topicCommentRequest == null) {
+            throw new BusinessException(StatusCode.PARAMS_ERROR);
+        }
+        Comment comment = new Comment();
+        BeanUtils.copyProperties(topicCommentRequest, comment);
+        boolean result = commentService.commentTopic(comment);
+        if (!result) {
+            throw new BusinessException(StatusCode.SYSTEM_ERROR, "评论失败");
+        }
+        return ResultUtils.success(true);
+    }
 
+    @GetMapping("/comment/list/{topicId}")
+    public BaseResponse<List<CommentVO>> listTopicComment(@PathVariable Long topicId) {
+        if (topicId == null || topicId <= 0) {
+            throw new BusinessException(StatusCode.PARAMS_ERROR);
+        }
+        List<CommentVO> commentVOList = commentService.listTopicComment(topicId);
+        return ResultUtils.success(commentVOList);
+    }
 
 }

@@ -43,7 +43,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     public static final String SALT = "tomato_planet";
 
     @Override
-    public Long userRegister(String userAccount, String userEmail, String emailVerifyCode, HttpServletRequest request) {
+    public Long userRegister(String userAccount, String userEmail, String password, HttpServletRequest request) {
         // 检验账号格式
         if (userAccount.length() < USER_ACCOUNT_LENGTH_LOW ) {
             throw new BusinessException(StatusCode.PARAMS_ERROR, "用户账号长度过短");
@@ -60,14 +60,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             throw new BusinessException(StatusCode.PARAMS_ERROR, "用户邮箱格式不规范");
         }
 
-        // 校验验证码是否一致
+        /*// 校验验证码是否一致
         HttpSession session = request.getSession();
         String checkCode = (String) session.getAttribute(userEmail);
         if (!emailVerifyCode.equals(checkCode)) {
             throw new BusinessException(StatusCode.PARAMS_ERROR, "验证码错误");
         }
         // 成功匹配，立马删除session中保存的验证码
-        session.removeAttribute(userEmail);
+        session.removeAttribute(userEmail);*/
 
         // 判断用户账户是否重复
         QueryWrapper<User> queryWrapperAccount = new QueryWrapper();
@@ -85,8 +85,22 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             throw new BusinessException(StatusCode.PARAMS_ERROR, "用户邮箱不能重复");
         }
 
+        // 检验密码格式
+        if (password.length() < USER_PASSWORD_LENGTH_LOW) {
+            throw new BusinessException(StatusCode.PARAMS_ERROR, "用户密码长度过短");
+        }
+        if (password.length() > USER_PASSWORD_LENGTH_HIGH ) {
+            throw new BusinessException(StatusCode.PARAMS_ERROR, "用户密码长度过长");
+        }
+        if (!RegexUtils.isUserPasswordValid(password)) {
+            throw new BusinessException(StatusCode.PARAMS_ERROR, "用户密码包含违规字符");
+        }
+
+        // 加密
+        String encryptedPassword = DigestUtils.md5DigestAsHex((SALT + password).getBytes());
+
         // 3. 插入数据（并初始化一些数据）
-        User user = getOriginUser(userAccount, userEmail);
+        User user = getOriginUser(userAccount, userEmail, encryptedPassword);
         boolean result = this.save(user);
         if (!result) {
             throw new BusinessException(StatusCode.PARAMS_ERROR, "注册失败");
@@ -344,15 +358,84 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         return true;
     }
 
+    @Override
+    public boolean userDestroy(User loginUser, HttpServletRequest request) {
+        // 移除登录态
+        request.getSession().removeAttribute(USER_LOGIN_STATE);
+
+        // 获取登录用户id，删除对应信息
+        Long loginUserId = loginUser.getId();
+        boolean result = this.removeById(loginUserId);
+
+        return result;
+    }
+
+    @Override
+    public boolean userVerify(String userEmail, String emailVerifyCode, HttpServletRequest request) {
+
+        // 检验邮箱格式
+        if (!RegexUtils.isEmailValid(userEmail)) {
+            throw new BusinessException(StatusCode.PARAMS_ERROR, "用户邮箱格式不规范");
+        }
+
+        // 校验验证码是否一致
+        HttpSession session = request.getSession();
+        String checkCode = (String) session.getAttribute(userEmail);
+        if (!emailVerifyCode.equals(checkCode)) {
+            throw new BusinessException(StatusCode.PARAMS_ERROR, "验证码错误");
+        }
+        // 成功匹配，立马删除session中保存的验证码
+        session.removeAttribute(userEmail);
+
+        return true;
+    }
+
+    @Override
+    public boolean operatePassword(String password, String confirmPassword, String userEmail) {
+        // 检验密码格式
+        if (password.length() < USER_PASSWORD_LENGTH_LOW) {
+            throw new BusinessException(StatusCode.PARAMS_ERROR, "用户密码长度过短");
+        }
+        if (password.length() > USER_PASSWORD_LENGTH_HIGH ) {
+            throw new BusinessException(StatusCode.PARAMS_ERROR, "用户密码长度过长");
+        }
+        if (!RegexUtils.isUserPasswordValid(password)) {
+            throw new BusinessException(StatusCode.PARAMS_ERROR, "用户密码包含违规字符");
+        }
+
+        // 判断两次密码是否一致
+        if (!confirmPassword.equals(password)) {
+            throw new BusinessException(StatusCode.PARAMS_ERROR, "两次密码输入不一致");
+        }
+
+        // 获取当前登录用户
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        userQueryWrapper.eq("user_Email", userEmail);
+        User user = this.getOne(userQueryWrapper);
+
+        // 加密
+        String encryptedPassword = DigestUtils.md5DigestAsHex((SALT + password).getBytes());
+
+        // 设置用户密码（在数据库中）
+        UpdateWrapper<User> userUpdateWrapper = new UpdateWrapper<>();
+        userUpdateWrapper.set("user_password", encryptedPassword);
+        boolean result = this.update(userUpdateWrapper);
+        if (!result) {
+            throw new BusinessException(StatusCode.SYSTEM_ERROR, "设置密码错误");
+        }
+        return true;
+    }
+
     /**
      * 注册时初始化User
      * @param userAccount
      * @param userEmail
      * @return
      */
-    private User getOriginUser(String userAccount, String userEmail) {
+    private User getOriginUser(String userAccount, String userEmail, String encryptedPassword) {
         User user = new User();
         user.setUserAccount(userAccount);
+        user.setUserPassword(encryptedPassword);
         String random = "tomato_" + RandomStringUtils.random(7, true, true);
         user.setUserName(random);
         user.setAvatarUrl("https://img-blog.csdnimg.cn/img_convert/b573b00bed7126db2c209ed01eb35189.png");
@@ -372,7 +455,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         safetyUser.setUserEmail(user.getUserEmail());
         safetyUser.setUserRole(user.getUserRole());
         safetyUser.setUserCreateTime(user.getUserCreateTime());
-        safetyUser.setIsdelete(user.getIsdelete());
+        safetyUser.setIsDeleted(user.getIsDeleted());
         return safetyUser;
     }
 }

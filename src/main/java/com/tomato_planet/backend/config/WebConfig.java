@@ -20,10 +20,15 @@ public class WebConfig  implements WebMvcConfigurer  {
                 .excludePathPatterns(
                         "/user/register",
                         "/user/login",
+                        "/user/verify",
                         "/user/sendVerifyCode",
                         "/doc.html",
                         "/v2/api-docs",
+                        "/v3/api-docs",
+                        "/webjars/**",
                         "/swagger-resources",
+                        "/swagger-resources/**",
+                        "/swagger-ui/",
                         "/topic/image/upload",
                         "/admin/user/**"
                 );

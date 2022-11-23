@@ -1,10 +1,8 @@
 package com.tomato_planet.backend.model.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -68,7 +66,8 @@ public class User implements Serializable {
     /**
      * 是否删除（逻辑删除）
      */
-    private Integer isdelete;
+    @TableLogic
+    private Integer isDeleted;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
@@ -94,7 +93,7 @@ public class User implements Serializable {
             && (this.getUserRole() == null ? other.getUserRole() == null : this.getUserRole().equals(other.getUserRole()))
             && (this.getUserCreateTime() == null ? other.getUserCreateTime() == null : this.getUserCreateTime().equals(other.getUserCreateTime()))
             && (this.getUserUpdateTime() == null ? other.getUserUpdateTime() == null : this.getUserUpdateTime().equals(other.getUserUpdateTime()))
-            && (this.getIsdelete() == null ? other.getIsdelete() == null : this.getIsdelete().equals(other.getIsdelete()));
+            && (this.getIsDeleted() == null ? other.getIsDeleted() == null : this.getIsDeleted().equals(other.getIsDeleted()));
     }
 
     @Override
@@ -110,7 +109,7 @@ public class User implements Serializable {
         result = prime * result + ((getUserRole() == null) ? 0 : getUserRole().hashCode());
         result = prime * result + ((getUserCreateTime() == null) ? 0 : getUserCreateTime().hashCode());
         result = prime * result + ((getUserUpdateTime() == null) ? 0 : getUserUpdateTime().hashCode());
-        result = prime * result + ((getIsdelete() == null) ? 0 : getIsdelete().hashCode());
+        result = prime * result + ((getIsDeleted() == null) ? 0 : getIsDeleted().hashCode());
         return result;
     }
 
@@ -129,7 +128,7 @@ public class User implements Serializable {
         sb.append(", userRole=").append(userRole);
         sb.append(", userCreateTime=").append(userCreateTime);
         sb.append(", userUpdateTime=").append(userUpdateTime);
-        sb.append(", isdelete=").append(isdelete);
+        sb.append(", isDeleted=").append(isDeleted);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

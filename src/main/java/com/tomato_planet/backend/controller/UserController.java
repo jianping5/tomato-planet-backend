@@ -9,6 +9,7 @@ import com.tomato_planet.backend.exception.BusinessException;
 import com.tomato_planet.backend.model.entity.User;
 import com.tomato_planet.backend.model.request.*;
 import com.tomato_planet.backend.service.UserService;
+import com.tomato_planet.backend.util.UserHolder;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -36,13 +37,7 @@ public class UserController {
 
 
     @PostMapping("/login")
-
-    @ApiOperation(value = "jdk-HashMap-动态创建显示参数-无@RequestBody")
-    @DynamicResponseParameters(name = "CreateOrderHashMapModel",properties = {
-            @DynamicParameter(name = "",value = "注解id",example = "X000111",required = true,dataTypeClass = Integer.class),
-            @DynamicParameter(name = "name3",value = "订单编号-gson"),
-            @DynamicParameter(name = "name1",value = "订单编号1-gson"),
-    })
+    @ApiOperation(value = "用户登录")
     public BaseResponse<User> userLogin(@RequestBody LoginRequest loginRequest, HttpServletRequest request) {
         if (loginRequest == null) {
             throw new BusinessException(StatusCode.PARAMS_ERROR);
@@ -67,12 +62,26 @@ public class UserController {
         }
         String userEmail = registerRequest.getUserEmail();
         String userAccount = registerRequest.getUserAccount();
-        String emailVerifyCode = registerRequest.getEmailVerifyCode();
-        if (StringUtils.isAnyBlank(userAccount, userEmail, emailVerifyCode)) {
+        String password = registerRequest.getPassword();
+        if (StringUtils.isAnyBlank(userAccount, userEmail, password)) {
             throw new BusinessException(StatusCode.PARAMS_ERROR);
         }
-        Long id = userService.userRegister(userAccount, userEmail, emailVerifyCode, request);
+        Long id = userService.userRegister(userAccount, userEmail, password, request);
         return ResultUtils.success(id);
+    }
+
+    @PostMapping("/verify")
+    public BaseResponse<Boolean> userVerify(@RequestBody VerifyRequest verifyRequest, HttpServletRequest request) {
+        if (verifyRequest == null) {
+            throw new BusinessException(StatusCode.PARAMS_ERROR);
+        }
+        String userEmail = verifyRequest.getUserEmail();
+        String emailVerifyCode = verifyRequest.getEmailVerifyCode();
+        if (StringUtils.isAnyBlank(userEmail, emailVerifyCode)) {
+            throw new BusinessException(StatusCode.PARAMS_ERROR);
+        }
+        boolean result = userService.userVerify(userEmail, emailVerifyCode, request);
+        return ResultUtils.success(result);
     }
 
     @PostMapping("/logout")
@@ -139,5 +148,30 @@ public class UserController {
         }
         boolean result = userService.setPassword(password, confirmPassword);
         return ResultUtils.success(result);
+    }
+
+    @PostMapping("/password/operate")
+    public BaseResponse<Boolean> operatePassword(@RequestBody PasswordOperateRequest passwordOperateRequest) {
+        if (passwordOperateRequest == null) {
+            throw new BusinessException(StatusCode.PARAMS_ERROR);
+        }
+        String password = passwordOperateRequest.getPassword();
+        String confirmPassword = passwordOperateRequest.getConfirmPassword();
+        String userEmail = passwordOperateRequest.getUserEmail();
+        if (StringUtils.isAnyBlank(password, confirmPassword, userEmail)) {
+            throw new BusinessException(StatusCode.PARAMS_ERROR);
+        }
+        boolean result = userService.operatePassword(password, confirmPassword, userEmail);
+        return ResultUtils.success(result);
+    }
+
+    @DeleteMapping("/destroy")
+    public BaseResponse<Boolean> userDestroy(HttpServletRequest request) {
+        User loginUser = UserHolder.getUser();
+        boolean result = userService.userDestroy(loginUser, request);
+        if (!result) {
+            throw new BusinessException(StatusCode.SYSTEM_ERROR, "账号销毁失败");
+        }
+        return ResultUtils.success(true);
     }
 }

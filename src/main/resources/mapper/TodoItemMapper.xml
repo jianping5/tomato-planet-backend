@@ -12,11 +12,19 @@
             <result property="todoBackgroundImageUrl" column="todo_background_image_url" jdbcType="VARCHAR"/>
             <result property="todoCreateTime" column="todo_create_time" jdbcType="TIMESTAMP"/>
             <result property="todoUpdateTime" column="todo_update_time" jdbcType="TIMESTAMP"/>
+            <result property="isDeleted" column="is_deleted" jdbcType="TINYINT"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id,user_id,todo_name,
         todo_total_time,todo_background_image_url,todo_create_time,
-        todo_update_time
+        todo_update_time,is_deleted
     </sql>
+
+    <select id="listAllByIds" resultType="com.tomato_planet.backend.model.entity.TodoItem">
+        select <include refid="Base_Column_List"></include> from todo_item where id in
+        <foreach collection="idList" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
 </mapper>

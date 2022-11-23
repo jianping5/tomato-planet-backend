@@ -9,12 +9,14 @@
             <result property="userId" column="user_id" jdbcType="BIGINT"/>
             <result property="topicId" column="topic_id" jdbcType="BIGINT"/>
             <result property="commentContent" column="comment_content" jdbcType="VARCHAR"/>
+            <result property="location" column="location" jdbcType="VARCHAR"/>
             <result property="parentCommentId" column="parent_comment_id" jdbcType="BIGINT"/>
             <result property="commentTime" column="comment_time" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id,user_id,topic_id,
-        comment_content,parent_comment_id,comment_time
+        comment_content,location,parent_comment_id,
+        comment_time
     </sql>
 </mapper>

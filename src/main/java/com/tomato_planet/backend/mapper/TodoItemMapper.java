@@ -1,7 +1,13 @@
 package com.tomato_planet.backend.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.tomato_planet.backend.model.entity.TodoItem;
+import org.apache.ibatis.annotations.Param;
+
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.List;
 
 /**
 * @author jianping5
@@ -11,6 +17,7 @@ import com.tomato_planet.backend.model.entity.TodoItem;
 */
 public interface TodoItemMapper extends BaseMapper<TodoItem> {
 
+    List<TodoItem> listAllByIds(@Param("idList") Collection<? extends Serializable> idList);
 }
 
 

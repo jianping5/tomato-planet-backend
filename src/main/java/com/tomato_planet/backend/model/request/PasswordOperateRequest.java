@@ -7,30 +7,24 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
-
 /**
  * @author jianping5
- * @createDate 2022/10/26 19:14
+ * @createDate 2022/11/12 21:52
  */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@ApiModel(value = "用户请求体")
-public class RegisterRequest implements Serializable {
+@ApiModel(value = "操作密码请求体")
+public class PasswordOperateRequest {
 
     private static final long serialVersionUID = 1L;
-
-    @ApiModelProperty(value = "用户账号")
-    private String userAccount;
 
     @ApiModelProperty(value = "用户邮箱")
     private String userEmail;
 
-    // @ApiModelProperty(value = "邮箱验证码")
-    // private String emailVerifyCode;
-
-    @ApiModelProperty(value = "用户密码")
+    @ApiModelProperty(value = "密码")
     private String password;
 
+    @ApiModelProperty(value = "确认密码")
+    private String confirmPassword;
 }

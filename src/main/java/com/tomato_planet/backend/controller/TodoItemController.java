@@ -13,10 +13,8 @@ import com.tomato_planet.backend.model.vo.TodoItemVO;
 import com.tomato_planet.backend.service.TodoItemService;
 import com.tomato_planet.backend.util.UserHolder;
 import org.springframework.beans.BeanUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -79,7 +77,7 @@ public class TodoItemController {
         return ResultUtils.success(true);
     }
 
-    @PostMapping("list")
+    @PostMapping("/list")
     public BaseResponse<List<TodoItemVO>> listTodoItems() {
         // 获取当前登录用户
         User loginUser = UserHolder.getUser();
@@ -87,4 +85,10 @@ public class TodoItemController {
         return ResultUtils.success(todoItemVOList);
     }
 
+    @PostMapping("/clock")
+    public BaseResponse<Long> clockShare(@RequestPart MultipartFile file, @RequestParam Integer clockType) {
+        User loginUser = UserHolder.getUser();
+        long topicId = todoItemService.clockShare(loginUser, file, clockType);
+        return ResultUtils.success(topicId);
+    }
 }

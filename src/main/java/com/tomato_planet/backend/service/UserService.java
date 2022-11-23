@@ -16,10 +16,11 @@ public interface UserService extends IService<User> {
      * 用户注册
      * @param userAccount
      * @param userEmail
-     * @param emailVerifyCode
+     * @param password
+     * @param request
      * @return
      */
-    Long userRegister(String userAccount, String userEmail, String emailVerifyCode, HttpServletRequest request);
+    Long userRegister(String userAccount, String userEmail, String password, HttpServletRequest request);
 
     /**
      * 发送验证码到指定邮箱
@@ -69,4 +70,29 @@ public interface UserService extends IService<User> {
      * @return
      */
     boolean setPassword(String password, String confirmPassword);
+
+    /**
+     * 销毁账号
+     * @param loginUser
+     * @param request
+     */
+    boolean userDestroy(User loginUser, HttpServletRequest request);
+
+    /**
+     * 用户邮箱验证
+     * @param userEmail
+     * @param emailVerifyCode
+     * @param request
+     * @return
+     */
+    boolean userVerify(String userEmail, String emailVerifyCode, HttpServletRequest request);
+
+    /**
+     * 操作密码
+     * @param password
+     * @param confirmPassword
+     * @param userEmail
+     * @return
+     */
+    boolean operatePassword(String password, String confirmPassword, String userEmail);
 }

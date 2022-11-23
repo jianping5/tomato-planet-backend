@@ -14,7 +14,7 @@ public class TodoItemConstant {
     /**
      * 待办最长总时长
      */
-    public static final int TODO_TOTAL_LOGNEST_TIME_LENGTH = 180;
+    public static final int TODO_TOTAL_LONGEST_TIME_LENGTH = 180;
 
     /**
      * 待办最短总时长

@@ -50,7 +50,7 @@ public class ImageUtils {
      * @param multipartFile
      * @return
      */
-    private String uploadImageQiniu(MultipartFile multipartFile){
+    public String uploadImageQiniu(MultipartFile multipartFile){
         try {
             // 获取文件上传的流
             byte[] fileBytes = multipartFile.getBytes();

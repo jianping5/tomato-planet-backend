@@ -5,19 +5,16 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
-import java.time.LocalDateTime;
 import java.util.Date;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 /**
- * 评论表
- * @TableName comment
+ * 收藏表
+ * @TableName collection
  */
-@TableName(value ="comment")
+@TableName(value ="collection")
 @Data
-public class Comment implements Serializable {
+public class Collection implements Serializable {
     /**
      * 主键
      */
@@ -25,35 +22,29 @@ public class Comment implements Serializable {
     private Long id;
 
     /**
-     * 评论发布用户id
+     * 用户id
      */
     private Long userId;
 
     /**
-     * 评论主题id
+     * 主题id
      */
     private Long topicId;
 
     /**
-     * 评论内容
+     * 是否收藏（0：未收藏 1：已收藏）
      */
-    private String commentContent;
+    private Integer isCollect;
 
     /**
-     * 父评论id
+     * 修改时间
      */
-    private Long parentCommentId;
+    private Date updateTime;
 
     /**
-     * 发布者地理位置
+     * 收藏时间
      */
-    private String location;
-
-    /**
-     * 评论时间
-     */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime commentTime;
+    private Date collectTime;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
@@ -69,13 +60,13 @@ public class Comment implements Serializable {
         if (getClass() != that.getClass()) {
             return false;
         }
-        Comment other = (Comment) that;
+        Collection other = (Collection) that;
         return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
             && (this.getUserId() == null ? other.getUserId() == null : this.getUserId().equals(other.getUserId()))
             && (this.getTopicId() == null ? other.getTopicId() == null : this.getTopicId().equals(other.getTopicId()))
-            && (this.getCommentContent() == null ? other.getCommentContent() == null : this.getCommentContent().equals(other.getCommentContent()))
-            && (this.getParentCommentId() == null ? other.getParentCommentId() == null : this.getParentCommentId().equals(other.getParentCommentId()))
-            && (this.getCommentTime() == null ? other.getCommentTime() == null : this.getCommentTime().equals(other.getCommentTime()));
+            && (this.getIsCollect() == null ? other.getIsCollect() == null : this.getIsCollect().equals(other.getIsCollect()))
+            && (this.getUpdateTime() == null ? other.getUpdateTime() == null : this.getUpdateTime().equals(other.getUpdateTime()))
+            && (this.getCollectTime() == null ? other.getCollectTime() == null : this.getCollectTime().equals(other.getCollectTime()));
     }
 
     @Override
@@ -85,9 +76,9 @@ public class Comment implements Serializable {
         result = prime * result + ((getId() == null) ? 0 : getId().hashCode());
         result = prime * result + ((getUserId() == null) ? 0 : getUserId().hashCode());
         result = prime * result + ((getTopicId() == null) ? 0 : getTopicId().hashCode());
-        result = prime * result + ((getCommentContent() == null) ? 0 : getCommentContent().hashCode());
-        result = prime * result + ((getParentCommentId() == null) ? 0 : getParentCommentId().hashCode());
-        result = prime * result + ((getCommentTime() == null) ? 0 : getCommentTime().hashCode());
+        result = prime * result + ((getIsCollect() == null) ? 0 : getIsCollect().hashCode());
+        result = prime * result + ((getUpdateTime() == null) ? 0 : getUpdateTime().hashCode());
+        result = prime * result + ((getCollectTime() == null) ? 0 : getCollectTime().hashCode());
         return result;
     }
 
@@ -100,9 +91,9 @@ public class Comment implements Serializable {
         sb.append(", id=").append(id);
         sb.append(", userId=").append(userId);
         sb.append(", topicId=").append(topicId);
-        sb.append(", commentContent=").append(commentContent);
-        sb.append(", parentCommentId=").append(parentCommentId);
-        sb.append(", commentTime=").append(commentTime);
+        sb.append(", isCollect=").append(isCollect);
+        sb.append(", updateTime=").append(updateTime);
+        sb.append(", collectTime=").append(collectTime);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();
